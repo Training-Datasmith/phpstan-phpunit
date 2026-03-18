@@ -122,7 +122,7 @@ class AssertTypeSpecifyingExtensionHelper
 		}
 
 		if (strpos($name, 'Not') !== false) {
-			$expression = new BooleanNot($expression);
+			return new BooleanNot($expression);
 		}
 
 		return $expression;

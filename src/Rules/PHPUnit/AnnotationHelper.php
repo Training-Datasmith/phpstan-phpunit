@@ -45,10 +45,12 @@ class AnnotationHelper
 			if ($annotation === false || $matches === []) {
 				continue; // Line without annotation
 			}
-
-			if (!in_array($matches['property'], self::ANNOTATIONS_WITH_PARAMS, true) || $matches['whitespace'] !== '') {
-				continue;
-			}
+            if (!in_array($matches['property'], self::ANNOTATIONS_WITH_PARAMS, true)) {
+                continue;
+            }
+            if ($matches['whitespace'] !== '') {
+                continue;
+            }
 
 			$errors[] = RuleErrorBuilder::message(
 				'Annotation "' . $matches['annotation'] . '" is invalid, "@' . $matches['property'] . '" should be followed by a space and a value.',

@@ -101,12 +101,10 @@ class AssertSameWithCountRule implements Rule
 	private static function isNormalCount(Node\Expr\FuncCall $countFuncCall, Type $countedType, Scope $scope): TrinaryLogic
 	{
 		if (count($countFuncCall->getArgs()) === 1) {
-			$isNormalCount = TrinaryLogic::createYes();
-		} else {
-			$mode = $scope->getType($countFuncCall->getArgs()[1]->value);
-			$isNormalCount = (new ConstantIntegerType(COUNT_NORMAL))->isSuperTypeOf($mode)->result->or($countedType->getIterableValueType()->isArray()->negate());
+			return TrinaryLogic::createYes();
 		}
-		return $isNormalCount;
+        $mode = $scope->getType($countFuncCall->getArgs()[1]->value);
+		return (new ConstantIntegerType(COUNT_NORMAL))->isSuperTypeOf($mode)->result->or($countedType->getIterableValueType()->isArray()->negate());
 	}
 
 }

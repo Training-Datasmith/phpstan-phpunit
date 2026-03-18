@@ -172,9 +172,9 @@ class DataProviderHelper
 				$stmts = $this->parser->parseFile($dataProviderMethodReflectionDeclaringClass->getFileName());
 				$nodeFinder = new NodeFinder();
 				/** @var ClassMethod|null $methodNode */
-				$methodNode = $nodeFinder->findFirst($stmts, static fn ($node) => $node instanceof ClassMethod && $node->name->toString() === $dataProviderMethodReflection->getName());
+				$methodNode = $nodeFinder->findFirst($stmts, static fn ($node): bool => $node instanceof ClassMethod && $node->name->toString() === $dataProviderMethodReflection->getName());
 				if ($methodNode !== null) {
-					$errorBuilder->fixNode($methodNode, static function (ClassMethod $methodNode) {
+					$errorBuilder->fixNode($methodNode, static function (ClassMethod $methodNode): \PhpParser\Node\Stmt\ClassMethod {
 						$methodNode->flags |= Modifiers::STATIC;
 
 						return $methodNode;
