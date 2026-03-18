@@ -1,21 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace DataProviderStaticFix;
 
 class FixTestCase extends \PHPUnit\Framework\TestCase
 {
+    public function dataProvide(): iterable
+    {
+        yield [];
+    }
 
-	public function dataProvide(): iterable
-	{
-		yield [];
-	}
+    /**
+     * @dataProvider dataProvide
+     */
+    public function testFoo(): void
+    {
 
-	/**
-	 * @dataProvider dataProvide
-	 */
-	public function testFoo(): void
-	{
-
-	}
+    }
 
 }

@@ -1,6 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\PhpDoc\PHPUnit;
+
+use function array_key_exists;
+use function count;
 
 use PHPStan\Analyser\NameScope;
 use PHPStan\PhpDoc\TypeNodeResolver;
@@ -11,54 +16,51 @@ use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
 use PHPStan\Type\NeverType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
-use function array_key_exists;
-use function count;
 
 class MockObjectTypeNodeResolverExtension implements TypeNodeResolverExtension, TypeNodeResolverAwareExtension
 {
+    private TypeNodeResolver $typeNodeResolver;
 
-	private TypeNodeResolver $typeNodeResolver;
+    public function setTypeNodeResolver(TypeNodeResolver $typeNodeResolver): void
+    {
+        $this->typeNodeResolver = $typeNodeResolver;
+    }
 
-	public function setTypeNodeResolver(TypeNodeResolver $typeNodeResolver): void
-	{
-		$this->typeNodeResolver = $typeNodeResolver;
-	}
+    public function getCacheKey(): string
+    {
+        return 'phpunit-v1';
+    }
 
-	public function getCacheKey(): string
-	{
-		return 'phpunit-v1';
-	}
+    public function resolve(TypeNode $typeNode, NameScope $nameScope): ?Type
+    {
+        if (!$typeNode instanceof UnionTypeNode) {
+            return null;
+        }
 
-	public function resolve(TypeNode $typeNode, NameScope $nameScope): ?Type
-	{
-		if (!$typeNode instanceof UnionTypeNode) {
-			return null;
-		}
+        static $mockClassNames = [
+            'PHPUnit_Framework_MockObject_MockObject' => true,
+            'PHPUnit\Framework\MockObject\MockObject' => true,
+            'PHPUnit\Framework\MockObject\Stub' => true,
+        ];
 
-		static $mockClassNames = [
-			'PHPUnit_Framework_MockObject_MockObject' => true,
-			'PHPUnit\Framework\MockObject\MockObject' => true,
-			'PHPUnit\Framework\MockObject\Stub' => true,
-		];
+        $types = $this->typeNodeResolver->resolveMultiple($typeNode->types, $nameScope);
+        foreach ($types as $type) {
+            $classNames = $type->getObjectClassNames();
+            if (count($classNames) !== 1) {
+                continue;
+            }
 
-		$types = $this->typeNodeResolver->resolveMultiple($typeNode->types, $nameScope);
-		foreach ($types as $type) {
-			$classNames = $type->getObjectClassNames();
-			if (count($classNames) !== 1) {
-				continue;
-			}
+            if (array_key_exists($classNames[0], $mockClassNames)) {
+                $resultType = TypeCombinator::intersect(...$types);
+                if ($resultType instanceof NeverType) {
+                    continue;
+                }
 
-			if (array_key_exists($classNames[0], $mockClassNames)) {
-				$resultType = TypeCombinator::intersect(...$types);
-				if ($resultType instanceof NeverType) {
-					continue;
-				}
+                return $resultType;
+            }
+        }
 
-				return $resultType;
-			}
-		}
-
-		return null;
-	}
+        return null;
+    }
 
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\PHPUnit;
 
@@ -11,76 +13,75 @@ use PHPStan\Testing\RuleTestCase;
  */
 class AssertSameMethodDifferentTypesRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return self::getContainer()->getByType(ImpossibleCheckTypeMethodCallRule::class);
+    }
 
-	protected function getRule(): Rule
-	{
-		return self::getContainer()->getByType(ImpossibleCheckTypeMethodCallRule::class);
-	}
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/assert-same.php'], [
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and 1 will always evaluate to false.',
+                10,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and stdClass will always evaluate to false.',
+                11,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with 1 and string will always evaluate to false.',
+                12,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and int will always evaluate to false.',
+                13,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with array{\'a\', \'b\'} and array{1, 2} will always evaluate to false.',
+                14,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with array<string> and array<int> will always evaluate to false.',
+                39,
+                'Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.',
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with 1 and 1 will always evaluate to true.',
+                44,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with array{\'a\'} and array{\'a\', \'b\'} will always evaluate to false.',
+                45,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and \'1\' will always evaluate to true.',
+                46,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and \'2\' will always evaluate to false.',
+                47,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with array{\'a\'} and array{\'a\', 1} will always evaluate to false.',
+                51,
+            ],
+            [
+                'Call to method PHPUnit\Framework\Assert::assertSame() with array{\'a\', 2, 3.0} and array{\'a\', 1} will always evaluate to false.',
+                52,
+            ],
+        ]);
+    }
 
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/assert-same.php'], [
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and 1 will always evaluate to false.',
-				10,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and stdClass will always evaluate to false.',
-				11,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with 1 and string will always evaluate to false.',
-				12,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and int will always evaluate to false.',
-				13,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with array{\'a\', \'b\'} and array{1, 2} will always evaluate to false.',
-				14,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with array<string> and array<int> will always evaluate to false.',
-				39,
-				'Because the type is coming from a PHPDoc, you can turn off this check by setting <fg=cyan>treatPhpDocTypesAsCertain: false</> in your <fg=cyan>%configurationFile%</>.',
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with 1 and 1 will always evaluate to true.',
-				44,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with array{\'a\'} and array{\'a\', \'b\'} will always evaluate to false.',
-				45,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and \'1\' will always evaluate to true.',
-				46,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with \'1\' and \'2\' will always evaluate to false.',
-				47,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with array{\'a\'} and array{\'a\', 1} will always evaluate to false.',
-				51,
-			],
-			[
-				'Call to method PHPUnit\Framework\Assert::assertSame() with array{\'a\', 2, 3.0} and array{\'a\', 1} will always evaluate to false.',
-				52,
-			],
-		]);
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public static function getAdditionalConfigFiles(): array
-	{
-		return [
-			__DIR__ . '/../../../extension.neon',
-			__DIR__ . '/../../../vendor/phpstan/phpstan-strict-rules/rules.neon',
-		];
-	}
+    /**
+     * @return string[]
+     */
+    public static function getAdditionalConfigFiles(): array
+    {
+        return [
+            __DIR__ . '/../../../extension.neon',
+            __DIR__ . '/../../../vendor/phpstan/phpstan-strict-rules/rules.neon',
+        ];
+    }
 
 }

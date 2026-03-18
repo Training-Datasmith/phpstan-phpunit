@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\PHPUnit;
 
@@ -11,28 +13,27 @@ use PHPStan\Testing\RuleTestCase;
  */
 class DynamicCallToAssertionIgnoreExtensionTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        /** @phpstan-ignore phpstanApi.classConstant */
+        return self::getContainer()->getByType(DynamicCallOnStaticMethodsRule::class);
+    }
 
-	protected function getRule(): Rule
-	{
-		/** @phpstan-ignore phpstanApi.classConstant */
-		return self::getContainer()->getByType(DynamicCallOnStaticMethodsRule::class);
-	}
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/dynamic-call-to-assertion.php'], [
+            [
+                'Dynamic call to static method DynamicCallToAssertion\Foo::staticFn().',
+                17,
+            ],
+        ]);
+    }
 
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/dynamic-call-to-assertion.php'], [
-			[
-				'Dynamic call to static method DynamicCallToAssertion\Foo::staticFn().',
-				17,
-			],
-		]);
-	}
-
-	public static function getAdditionalConfigFiles(): array
-	{
-		return [
-			__DIR__ . '/data/dynamic-call-to-assertion.neon',
-		];
-	}
+    public static function getAdditionalConfigFiles(): array
+    {
+        return [
+            __DIR__ . '/data/dynamic-call-to-assertion.neon',
+        ];
+    }
 
 }

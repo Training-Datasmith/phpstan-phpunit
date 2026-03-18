@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\PHPUnit;
 
@@ -10,38 +12,37 @@ use PHPStan\Testing\RuleTestCase;
  */
 class ShouldCallParentMethodsRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new ShouldCallParentMethodsRule();
+    }
 
-	protected function getRule(): Rule
-	{
-		return new ShouldCallParentMethodsRule();
-	}
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/missing-parent-method-calls.php'], [
+            [
+                'Missing call to parent::setUp() method.',
+                32,
+            ],
+            [
+                'Missing call to parent::setUp() method.',
+                55,
+            ],
+            [
+                'Missing call to parent::tearDown() method.',
+                63,
+            ],
+        ]);
+    }
 
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/missing-parent-method-calls.php'], [
-			[
-				'Missing call to parent::setUp() method.',
-				32,
-			],
-			[
-				'Missing call to parent::setUp() method.',
-				55,
-			],
-			[
-				'Missing call to parent::tearDown() method.',
-				63,
-			],
-		]);
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public static function getAdditionalConfigFiles(): array
-	{
-		return [
-			__DIR__ . '/../../../extension.neon',
-		];
-	}
+    /**
+     * @return string[]
+     */
+    public static function getAdditionalConfigFiles(): array
+    {
+        return [
+            __DIR__ . '/../../../extension.neon',
+        ];
+    }
 
 }

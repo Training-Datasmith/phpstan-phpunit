@@ -1,92 +1,94 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MissingParentMethodCalls;
 
 use PHPUnit\Framework\TestCase;
 
 class FooTest extends TestCase
 {
-	public function setUp(): void
-	{
-		$this->foo = true;
-	}
+    public function setUp(): void
+    {
+        $this->foo = true;
+    }
 }
 
 class BaseTestCase extends TestCase
 {
-	public function setUp(): void
-	{
-		$this->bar = true;
-	}
+    public function setUp(): void
+    {
+        $this->bar = true;
+    }
 
-	public function tearDown(): void
-	{
-		$this->bar = null;
-	}
+    public function tearDown(): void
+    {
+        $this->bar = null;
+    }
 }
 
 class BazTest extends BaseTestCase
 {
-	private $baz;
+    private $baz;
 
-	public function setUp(): void
-	{
-		$this->baz = true;
-	}
+    public function setUp(): void
+    {
+        $this->baz = true;
+    }
 
-	public function baz(): bool
-	{
-		return $this->baz;
-	}
+    public function baz(): bool
+    {
+        return $this->baz;
+    }
 }
 
 class BarBazTest extends BaseTestCase
 {
-	public function setUp(): void
-	{
-		parent::setUp();
+    public function setUp(): void
+    {
+        parent::setUp();
 
-		$this->barBaz = true;
-	}
+        $this->barBaz = true;
+    }
 }
 
 class FooBarBazTest extends BaseTestCase
 {
-	public function setUp(): void
-	{
-		$result = 1 + 1;
-		parent::tearDown();
+    public function setUp(): void
+    {
+        $result = 1 + 1;
+        parent::tearDown();
 
-		$this->fooBarBaz = $result;
-	}
+        $this->fooBarBaz = $result;
+    }
 
-	public function tearDown(): void
-	{
-		$this->fooBarBaz = null;
-	}
+    public function tearDown(): void
+    {
+        $this->fooBarBaz = null;
+    }
 }
 
-class NormalBaseClass {}
+class NormalBaseClass
+{
+}
 
 class NormalClass extends NormalBaseClass
 {
-	public function setUp()
-	{
-		return true;
-	}
+    public function setUp()
+    {
+        return true;
+    }
 }
 
 abstract class BaseTestWithoutSetUp extends TestCase
 {
-
 }
 
 class LoremTest extends BaseTestWithoutSetUp
 {
-
-	protected function setUp(): void
-	{
-		// parent call is not missing here
-	}
+    protected function setUp(): void
+    {
+        // parent call is not missing here
+    }
 
 }

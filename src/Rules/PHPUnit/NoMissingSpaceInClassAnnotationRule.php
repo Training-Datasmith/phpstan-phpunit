@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\PHPUnit;
 
@@ -13,36 +15,35 @@ use PHPUnit\Framework\TestCase;
  */
 class NoMissingSpaceInClassAnnotationRule implements Rule
 {
+    /**
+     * Covers helper.
+     *
+     */
+    private AnnotationHelper $annotationHelper;
 
-	/**
-	 * Covers helper.
-	 *
-	 */
-	private AnnotationHelper $annotationHelper;
+    public function __construct(AnnotationHelper $annotationHelper)
+    {
+        $this->annotationHelper = $annotationHelper;
+    }
 
-	public function __construct(AnnotationHelper $annotationHelper)
-	{
-		$this->annotationHelper = $annotationHelper;
-	}
+    public function getNodeType(): string
+    {
+        return InClassNode::class;
+    }
 
-	public function getNodeType(): string
-	{
-		return InClassNode::class;
-	}
+    public function processNode(Node $node, Scope $scope): array
+    {
+        $classReflection = $scope->getClassReflection();
+        if ($classReflection === null || $classReflection->is(TestCase::class) === false) {
+            return [];
+        }
 
-	public function processNode(Node $node, Scope $scope): array
-	{
-		$classReflection = $scope->getClassReflection();
-		if ($classReflection === null || $classReflection->is(TestCase::class) === false) {
-			return [];
-		}
+        $docComment = $node->getDocComment();
+        if ($docComment === null) {
+            return [];
+        }
 
-		$docComment = $node->getDocComment();
-		if ($docComment === null) {
-			return [];
-		}
-
-		return $this->annotationHelper->processDocComment($docComment);
-	}
+        return $this->annotationHelper->processDocComment($docComment);
+    }
 
 }

@@ -1,4 +1,7 @@
-<?php // lint >= 8.0
+<?php
+
+declare(strict_types=1);
+// lint >= 8.0
 
 namespace Bug227;
 
@@ -8,35 +11,33 @@ use stdClass;
 
 class Foo
 {
+    public function addCacheTags(array $tags)
+    {
 
-	public function addCacheTags(array $tags)
-	{
+    }
 
-	}
+    public function getLanguage(): stdClass
+    {
 
-	public function getLanguage(): stdClass
-	{
-
-	}
+    }
 
 }
 
 class SomeTest extends TestCase
 {
+    protected MockObject|Foo $tsfe;
 
-	protected MockObject|Foo $tsfe;
+    protected function setUp(): void
+    {
+        $this->tsfe = $this->getMockBuilder(Foo::class)
+            ->onlyMethods(['addCacheTags', 'getLanguage'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->tsfe->method('getLanguage')->willReturn('aaa');
+    }
 
-	protected function setUp(): void
-	{
-		$this->tsfe = $this->getMockBuilder(Foo::class)
-			->onlyMethods(['addCacheTags', 'getLanguage'])
-			->disableOriginalConstructor()
-			->getMock();
-		$this->tsfe->method('getLanguage')->willReturn('aaa');
-	}
-
-	public function testSometest(): void
-	{
-		$this->tsfe->expects(self::once())->method('addCacheTags');
-	}
+    public function testSometest(): void
+    {
+        $this->tsfe->expects(self::once())->method('addCacheTags');
+    }
 }

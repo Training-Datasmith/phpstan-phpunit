@@ -1,94 +1,93 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DataProviderTrimmingArgs;
 
 use PHPUnit\Framework\TestCase;
 
 class FooTest extends TestCase
 {
+    public function dataProvide(): iterable
+    {
+        yield [1, 2];
+        yield [3, 4];
+    }
 
-	public function dataProvide(): iterable
-	{
-		yield [1, 2];
-		yield [3, 4];
-	}
+    /**
+     * @dataProvider dataProvide
+     */
+    public function testProvide(int $i): void
+    {
 
-	/**
-	 * @dataProvider dataProvide
-	 */
-	public function testProvide(int $i): void
-	{
+    }
 
-	}
+    /**
+     * @dataProvider dataProvide
+     */
+    public function testProvide2(int $i): void
+    {
 
-	/**
-	 * @dataProvider dataProvide
-	 */
-	public function testProvide2(int $i): void
-	{
-
-	}
+    }
 
 }
 
 class BarTest extends TestCase
 {
+    /**
+     * @return array<array<string>>
+     */
+    public function getData(): array
+    {
+        return [];
+    }
 
-	/**
-	 * @return array<array<string>>
-	 */
-	public function getData(): array
-	{
-		return [];
-	}
+    public function dataProvide(): array
+    {
+        return $this->getData();
+    }
 
-	public function dataProvide(): array
-	{
-		return $this->getData();
-	}
+    /**
+     * @dataProvider dataProvide
+     */
+    public function testProvide(string ...$arg): void
+    {
 
-	/**
-	 * @dataProvider dataProvide
-	 */
-	public function testProvide(string ...$arg): void
-	{
+    }
 
-	}
+    /**
+     * @dataProvider dataProvide
+     */
+    public function testProvide2(string $arg): void
+    {
 
-	/**
-	 * @dataProvider dataProvide
-	 */
-	public function testProvide2(string $arg): void
-	{
-
-	}
+    }
 
 }
 
 class BazTest extends TestCase
 {
+    /**
+     * @dataProvider dataProvide
+     */
+    public function testProvide(int $i, int $j, int $k, int ...$m): void
+    {
 
-	/**
-	 * @dataProvider dataProvide
-	 */
-	public function testProvide(int $i, int $j, int $k, int ...$m): void
-	{
+    }
 
-	}
+    /**
+     * @dataProvider dataProvide
+     */
+    public function testProvide2(int $i, int $j, int $k, int $m, int $n): void
+    {
 
-	/**
-	 * @dataProvider dataProvide
-	 */
-	public function testProvide2(int $i, int $j, int $k, int $m, int $n): void
-	{
+    }
 
-	}
-
-	public function dataProvide(): array
-	{
-		return [
-			[1, 2, 3, 4, 5, 'foo'],
-		];
-	}
+    public function dataProvide(): array
+    {
+        return [
+            [1, 2, 3, 4, 5, 'foo'],
+        ];
+    }
 
 }

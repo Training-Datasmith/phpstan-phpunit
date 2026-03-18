@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace ExampleTestCase;
 
@@ -7,34 +9,33 @@ namespace ExampleTestCase;
  */
 class CoversShouldExistTestCase extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @covers ::ignoreThis
+     */
+    public function testFunctionCoversBroken()
+    {
+    }
 
-	/**
-	 * @covers ::ignoreThis
-	 */
-	public function testFunctionCoversBroken()
-	{
-	}
+    /**
+     * @covers \PHPUnit\Framework\TestCase::assertEquals
+     */
+    public function testFunctionCoversGoodFQDN()
+    {
+    }
 
-	/**
-	 * @covers \PHPUnit\Framework\TestCase::assertEquals
-	 */
-	public function testFunctionCoversGoodFQDN()
-	{
-	}
+    /**
+     * @covers \PHPUnit\Framework\TestCase::assertNotReal
+     */
+    public function testFunctionCoversBadFQDN()
+    {
+    }
 
-	/**
-	 * @covers \PHPUnit\Framework\TestCase::assertNotReal
-	 */
-	public function testFunctionCoversBadFQDN()
-	{
-	}
-
-	/**
-	 * @covers \Not\A\Class::foo
-	 */
-	public function testFunctionCoversBadFQDN2()
-	{
-	}
+    /**
+     * @covers \Not\A\Class::foo
+     */
+    public function testFunctionCoversBadFQDN2()
+    {
+    }
 
 }
 
@@ -43,25 +44,26 @@ class CoversShouldExistTestCase extends \PHPUnit\Framework\TestCase
  */
 class CoversShouldExistTestCase2 extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @coversDefaultClass \ExampleTestCase\CoversShouldExistTestCase
+     */
+    public function testBadCoversDefault()
+    {
+    }
 
-	/**
-	 * @coversDefaultClass \ExampleTestCase\CoversShouldExistTestCase
-	 */
-	public function testBadCoversDefault() {}
+    /**
+     * @covers ::assertEquals
+     */
+    public function testFunctionCoversRealFunction()
+    {
+    }
 
-	/**
-	 * @covers ::assertEquals
-	 */
-	public function testFunctionCoversRealFunction()
-	{
-	}
-
-	/**
-	 * @covers ::assertNotReal
-	 */
-	public function testFunctionCoversBroken()
-	{
-	}
+    /**
+     * @covers ::assertNotReal
+     */
+    public function testFunctionCoversBroken()
+    {
+    }
 
 }
 
@@ -78,10 +80,11 @@ class MultipleCoversDefaultClass extends \PHPUnit\Framework\TestCase
  */
 class CoversShouldExistTestCase3 extends \PHPUnit\Framework\TestCase
 {
-
-	/**
-	 * @covers \PHPUnit\Framework\TestCase
-	 */
-	public function testBadCoversDefault() {}
+    /**
+     * @covers \PHPUnit\Framework\TestCase
+     */
+    public function testBadCoversDefault()
+    {
+    }
 
 }

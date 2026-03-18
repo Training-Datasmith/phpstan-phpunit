@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\PHPUnit;
 
@@ -10,43 +12,42 @@ use PHPStan\Testing\RuleTestCase;
  */
 class AssertSameNullExpectedRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return new AssertSameNullExpectedRule();
+    }
 
-	protected function getRule(): Rule
-	{
-		return new AssertSameNullExpectedRule();
-	}
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/assert-same-null-expected.php'], [
+            [
+                'You should use assertNull() instead of assertSame(null, $actual).',
+                10,
+            ],
+            [
+                'You should use assertNull() instead of assertSame(null, $actual).',
+                24,
+            ],
+            [
+                'You should use assertNull() instead of assertSame(null, $actual).',
+                60,
+            ],
+        ]);
+    }
 
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/assert-same-null-expected.php'], [
-			[
-				'You should use assertNull() instead of assertSame(null, $actual).',
-				10,
-			],
-			[
-				'You should use assertNull() instead of assertSame(null, $actual).',
-				24,
-			],
-			[
-				'You should use assertNull() instead of assertSame(null, $actual).',
-				60,
-			],
-		]);
-	}
+    public function testFix(): void
+    {
+        $this->fix(__DIR__ . '/data/assert-same-null-expected-fixable.php', __DIR__ . '/data/assert-same-null-expected-fixable.php.fixed');
+    }
 
-	public function testFix(): void
-	{
-		$this->fix(__DIR__ . '/data/assert-same-null-expected-fixable.php', __DIR__ . '/data/assert-same-null-expected-fixable.php.fixed');
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public static function getAdditionalConfigFiles(): array
-	{
-		return [
-			__DIR__ . '/../../../extension.neon',
-		];
-	}
+    /**
+     * @return string[]
+     */
+    public static function getAdditionalConfigFiles(): array
+    {
+        return [
+            __DIR__ . '/../../../extension.neon',
+        ];
+    }
 
 }

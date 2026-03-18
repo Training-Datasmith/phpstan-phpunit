@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\PHPUnit\Assert;
 
@@ -13,44 +15,41 @@ use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 
 class AssertStaticMethodTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
+    private TypeSpecifier $typeSpecifier;
 
-	private TypeSpecifier $typeSpecifier;
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    {
+        $this->typeSpecifier = $typeSpecifier;
+    }
 
-	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
-	{
-		$this->typeSpecifier = $typeSpecifier;
-	}
+    public function getClass(): string
+    {
+        return 'PHPUnit\Framework\Assert';
+    }
 
-	public function getClass(): string
-	{
-		return 'PHPUnit\Framework\Assert';
-	}
+    public function isStaticMethodSupported(
+        MethodReflection $methodReflection,
+        StaticCall $node,
+        TypeSpecifierContext $context
+    ): bool {
+        return AssertTypeSpecifyingExtensionHelper::isSupported(
+            $methodReflection->getName(),
+            $node->getArgs(),
+        );
+    }
 
-	public function isStaticMethodSupported(
-		MethodReflection $methodReflection,
-		StaticCall $node,
-		TypeSpecifierContext $context
-	): bool
-	{
-		return AssertTypeSpecifyingExtensionHelper::isSupported(
-			$methodReflection->getName(),
-			$node->getArgs(),
-		);
-	}
-
-	public function specifyTypes(
-		MethodReflection $functionReflection,
-		StaticCall $node,
-		Scope $scope,
-		TypeSpecifierContext $context
-	): SpecifiedTypes
-	{
-		return AssertTypeSpecifyingExtensionHelper::specifyTypes(
-			$this->typeSpecifier,
-			$scope,
-			$functionReflection->getName(),
-			$node->getArgs(),
-		);
-	}
+    public function specifyTypes(
+        MethodReflection $functionReflection,
+        StaticCall $node,
+        Scope $scope,
+        TypeSpecifierContext $context
+    ): SpecifiedTypes {
+        return AssertTypeSpecifyingExtensionHelper::specifyTypes(
+            $this->typeSpecifier,
+            $scope,
+            $functionReflection->getName(),
+            $node->getArgs(),
+        );
+    }
 
 }

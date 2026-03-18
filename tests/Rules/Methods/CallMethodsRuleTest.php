@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Rules\Methods;
 
@@ -10,25 +12,24 @@ use PHPStan\Testing\RuleTestCase;
  */
 class CallMethodsRuleTest extends RuleTestCase
 {
+    protected function getRule(): Rule
+    {
+        return self::getContainer()->getByType(CallMethodsRule::class);
+    }
 
-	protected function getRule(): Rule
-	{
-		return self::getContainer()->getByType(CallMethodsRule::class);
-	}
+    public function testBug222(): void
+    {
+        $this->analyse([__DIR__ . '/data/bug-222.php'], []);
+    }
 
-	public function testBug222(): void
-	{
-		$this->analyse([__DIR__ . '/data/bug-222.php'], []);
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public static function getAdditionalConfigFiles(): array
-	{
-		return [
-			__DIR__ . '/../../../extension.neon',
-		];
-	}
+    /**
+     * @return string[]
+     */
+    public static function getAdditionalConfigFiles(): array
+    {
+        return [
+            __DIR__ . '/../../../extension.neon',
+        ];
+    }
 
 }

@@ -1,42 +1,46 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace PHPStan\Type\PHPUnit;
+
+use function array_merge;
 
 use PHPStan\Rules\Methods\MissingMethodReturnTypehintRule;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use function array_merge;
 
 /**
  * @extends RuleTestCase<MissingMethodReturnTypehintRule>
  */
-class DataProviderReturnTypeIgnoreExtensionTest extends RuleTestCase {
-	protected function getRule(): Rule
-	{
-		/** @phpstan-ignore phpstanApi.classConstant */
-		$rule = self::getContainer()->getByType(MissingMethodReturnTypehintRule::class);
+class DataProviderReturnTypeIgnoreExtensionTest extends RuleTestCase
+{
+    protected function getRule(): Rule
+    {
+        /** @phpstan-ignore phpstanApi.classConstant */
+        $rule = self::getContainer()->getByType(MissingMethodReturnTypehintRule::class);
 
-		return $rule;
-	}
+        return $rule;
+    }
 
-	public function testRule(): void
-	{
-		$this->analyse([__DIR__ . '/data/data-provider-iterable-value.php'], [
-			[
-				'Method DataProviderIterableValueTest\Foo::notADataProvider() return type has no value type specified in iterable type iterable.',
-				41,
-				'See: https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-iterable-type'
-			],
-		]);
-	}
+    public function testRule(): void
+    {
+        $this->analyse([__DIR__ . '/data/data-provider-iterable-value.php'], [
+            [
+                'Method DataProviderIterableValueTest\Foo::notADataProvider() return type has no value type specified in iterable type iterable.',
+                41,
+                'See: https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-iterable-type',
+            ],
+        ]);
+    }
 
-	static public function getAdditionalConfigFiles(): array
-	{
-		return array_merge(
-			parent::getAdditionalConfigFiles(),
-			[
-				__DIR__ . '/data/data-provider-iterable-value.neon'
-			],
-		);
-	}
+    public static function getAdditionalConfigFiles(): array
+    {
+        return array_merge(
+            parent::getAdditionalConfigFiles(),
+            [
+                __DIR__ . '/data/data-provider-iterable-value.neon',
+            ],
+        );
+    }
 }

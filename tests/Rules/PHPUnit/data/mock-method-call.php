@@ -1,97 +1,100 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace MockMethodCall;
 
 class Foo extends \PHPUnit\Framework\TestCase
 {
+    public function testGoodMethod()
+    {
+        $this->createMock(Bar::class)->method('doThing');
+    }
 
-	public function testGoodMethod()
-	{
-		$this->createMock(Bar::class)->method('doThing');
-	}
+    public function testBadMethod()
+    {
+        $this->createMock(Bar::class)->method('doBadThing');
+    }
 
-	public function testBadMethod()
-	{
-		$this->createMock(Bar::class)->method('doBadThing');
-	}
+    public function testBadMethodWithExpectation()
+    {
+        $this->createMock(Bar::class)->expects($this->once())->method('doBadThing');
+    }
 
-	public function testBadMethodWithExpectation()
-	{
-		$this->createMock(Bar::class)->expects($this->once())->method('doBadThing');
-	}
+    public function testWithAnotherObject()
+    {
+        $bar = new BarWithMethod();
+        $bar->method('doBadThing');
+    }
 
-	public function testWithAnotherObject()
-	{
-		$bar = new BarWithMethod();
-		$bar->method('doBadThing');
-	}
+    public function testGoodMethodOnStub()
+    {
+        $this->createStub(Bar::class)->method('doThing');
+    }
 
-	public function testGoodMethodOnStub()
-	{
-		$this->createStub(Bar::class)->method('doThing');
-	}
+    public function testBadMethodOnStub()
+    {
+        $this->createStub(Bar::class)->method('doBadThing');
+    }
 
-	public function testBadMethodOnStub()
-	{
-		$this->createStub(Bar::class)->method('doBadThing');
-	}
+    public function testMockObject(\PHPUnit\Framework\MockObject\MockObject $mock)
+    {
+        $mock->method('doFoo');
+    }
 
-	public function testMockObject(\PHPUnit\Framework\MockObject\MockObject $mock)
-	{
-		$mock->method('doFoo');
-	}
+    public function testMockForIntersection()
+    {
+        $mock = $this->createMockForIntersectionOfInterfaces([FooInterface::class, BarInterface::class]);
+        $mock->method('fooMethod');
+        $mock->method('barMethod');
+        $mock->method('bazMethod');
+    }
 
-	public function testMockForIntersection()
-	{
-		$mock = $this->createMockForIntersectionOfInterfaces([FooInterface::class, BarInterface::class]);
-		$mock->method('fooMethod');
-		$mock->method('barMethod');
-		$mock->method('bazMethod');
-	}
-
-	public function testStubForIntersection()
-	{
-		$stub = static::createStubForIntersectionOfInterfaces([FooInterface::class, BarInterface::class]);
-		$stub->method('fooMethod');
-		$stub->method('barMethod');
-		$stub->method('bazMethod');
-	}
+    public function testStubForIntersection()
+    {
+        $stub = static::createStubForIntersectionOfInterfaces([FooInterface::class, BarInterface::class]);
+        $stub->method('fooMethod');
+        $stub->method('barMethod');
+        $stub->method('bazMethod');
+    }
 
 }
 
-class Bar {
-	public function doThing()
-	{
-		return 1;
-	}
+class Bar
+{
+    public function doThing()
+    {
+        return 1;
+    }
 };
 
-class BarWithMethod {
-	public function method(string $string)
-	{
-		return $string;
-	}
+class BarWithMethod
+{
+    public function method(string $string)
+    {
+        return $string;
+    }
 };
 
 final class FinalFoo
 {
-
 }
 
 class FinalFooTest extends \PHPUnit\Framework\TestCase
 {
-
-	public function testMockFinalClass()
-	{
-		$this->createMock(FinalFoo::class)->method('doFoo');
-	}
+    public function testMockFinalClass()
+    {
+        $this->createMock(FinalFoo::class)->method('doFoo');
+    }
 
 }
 
-interface FooInterface {
-	public function fooMethod(): int;
+interface FooInterface
+{
+    public function fooMethod(): int;
 }
 
-interface BarInterface {
-	public function barMethod(): string;
+interface BarInterface
+{
+    public function barMethod(): string;
 }
