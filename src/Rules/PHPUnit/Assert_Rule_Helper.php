@@ -10,6 +10,18 @@ use Php_Stan\Type\Object_Type;
 use function strtolower;
 class Assert_Rule_Helper
 {
+    /**
+     * Determines whether the given AST node represents a method or static call on PHPUnit's Assert class.
+     *
+     * Accepts both instance method calls (e.g., `$this->assertSame(...)`) and static calls
+     * (e.g., `self::assertSame(...)`, `Assert::assertSame(...)`). Resolves `self`, `static`,
+     * and `parent` to the actual class name using the current scope.
+     *
+     * @param Node  $node  The AST node to inspect (should be MethodCall or StaticCall)
+     * @param Scope $scope The current analysis scope, used to resolve relative class names
+     *
+     * @return bool True if the call is on a class extending or equal to PHPUnit\Framework\Assert
+     */
     public static function is_method_or_static_call_on_assert(Node $node, Scope $scope): bool
     {
         if ($node instanceof Node\Expr\Method_Call) {
