@@ -1,83 +1,68 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
+namespace Php_Stan\Rules\Php_Unit;
 
-namespace PHPStan\Rules\PHPUnit;
-
-use PHPStan\TrinaryLogic;
-
-class PHPUnitVersion
+use Php_Stan\Trinary_Logic;
+class Php_Unit_Version
 {
-    private ?int $majorVersion;
-
-    private ?int $minorVersion;
-
-    public function __construct(?int $majorVersion, ?int $minorVersion)
+    private ?int $major_version;
+    private ?int $minor_version;
+    public function __construct(?int $major_version, ?int $minor_version)
     {
-        $this->majorVersion = $majorVersion;
-        $this->minorVersion = $minorVersion;
+        $this->major_version = $major_version;
+        $this->minor_version = $minor_version;
     }
-
-    public function supportsDataProviderAttribute(): TrinaryLogic
+    public function supports_data_provider_attribute(): Trinary_Logic
     {
-        if ($this->majorVersion === null) {
-            return TrinaryLogic::createMaybe();
+        if ($this->major_version === null) {
+            return Trinary_Logic::create_maybe();
         }
-        return TrinaryLogic::createFromBoolean($this->majorVersion >= 10);
+        return Trinary_Logic::create_from_boolean($this->major_version >= 10);
     }
-
-    public function supportsTestAttribute(): TrinaryLogic
+    public function supports_test_attribute(): Trinary_Logic
     {
-        if ($this->majorVersion === null) {
-            return TrinaryLogic::createMaybe();
+        if ($this->major_version === null) {
+            return Trinary_Logic::create_maybe();
         }
-        return TrinaryLogic::createFromBoolean($this->majorVersion >= 10);
+        return Trinary_Logic::create_from_boolean($this->major_version >= 10);
     }
-
-    public function requiresStaticDataProviders(): TrinaryLogic
+    public function requires_static_data_providers(): Trinary_Logic
     {
-        if ($this->majorVersion === null) {
-            return TrinaryLogic::createMaybe();
+        if ($this->major_version === null) {
+            return Trinary_Logic::create_maybe();
         }
-        return TrinaryLogic::createFromBoolean($this->majorVersion >= 10);
+        return Trinary_Logic::create_from_boolean($this->major_version >= 10);
     }
-
-    public function supportsNamedArgumentsInDataProvider(): TrinaryLogic
+    public function supports_named_arguments_in_data_provider(): Trinary_Logic
     {
-        if ($this->majorVersion === null) {
-            return TrinaryLogic::createMaybe();
+        if ($this->major_version === null) {
+            return Trinary_Logic::create_maybe();
         }
-        return TrinaryLogic::createFromBoolean($this->majorVersion >= 11);
+        return Trinary_Logic::create_from_boolean($this->major_version >= 11);
     }
-
-    public function requiresPhpversionAttributeWithOperator(): TrinaryLogic
+    public function requires_phpversion_attribute_with_operator(): Trinary_Logic
     {
-        if ($this->majorVersion === null) {
-            return TrinaryLogic::createMaybe();
+        if ($this->major_version === null) {
+            return Trinary_Logic::create_maybe();
         }
-        return TrinaryLogic::createFromBoolean($this->majorVersion >= 13);
+        return Trinary_Logic::create_from_boolean($this->major_version >= 13);
     }
-
-    public function deprecatesPhpversionAttributeWithoutOperator(): TrinaryLogic
+    public function deprecates_phpversion_attribute_without_operator(): Trinary_Logic
     {
-        return $this->minVersion(12, 4);
+        return $this->min_version(12, 4);
     }
-
-    private function minVersion(int $major, int $minor): TrinaryLogic
+    private function min_version(int $major, int $minor): Trinary_Logic
     {
-        if ($this->majorVersion === null || $this->minorVersion === null) {
-            return TrinaryLogic::createMaybe();
+        if ($this->major_version === null || $this->minor_version === null) {
+            return Trinary_Logic::create_maybe();
         }
-
-        if ($this->majorVersion > $major) {
-            return TrinaryLogic::createYes();
+        if ($this->major_version > $major) {
+            return Trinary_Logic::create_yes();
         }
-
-        if ($this->majorVersion === $major && $this->minorVersion >= $minor) {
-            return TrinaryLogic::createYes();
+        if ($this->major_version === $major && $this->minor_version >= $minor) {
+            return Trinary_Logic::create_yes();
         }
-
-        return TrinaryLogic::createNo();
+        return Trinary_Logic::create_no();
     }
-
 }

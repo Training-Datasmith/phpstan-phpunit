@@ -1,64 +1,40 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
+namespace Php_Stan\Type\Php_Unit\Assert;
 
-namespace PHPStan\Type\PHPUnit\Assert;
-
-use PhpParser\Node\Expr\FuncCall;
-use PHPStan\Analyser\Scope;
-use PHPStan\Analyser\SpecifiedTypes;
-use PHPStan\Analyser\TypeSpecifier;
-use PHPStan\Analyser\TypeSpecifierAwareExtension;
-use PHPStan\Analyser\TypeSpecifierContext;
-use PHPStan\Reflection\FunctionReflection;
-use PHPStan\Type\FunctionTypeSpecifyingExtension;
-
+use Php_Parser\Node\Expr\Func_Call;
+use Php_Stan\Analyser\Scope;
+use Php_Stan\Analyser\Specified_Types;
+use Php_Stan\Analyser\Type_Specifier;
+use Php_Stan\Analyser\Type_Specifier_Aware_Extension;
+use Php_Stan\Analyser\Type_Specifier_Context;
+use Php_Stan\Reflection\Function_Reflection;
+use Php_Stan\Type\Function_Type_Specifying_Extension;
 use function strlen;
 use function strpos;
 use function substr;
-
-class AssertFunctionTypeSpecifyingExtension implements FunctionTypeSpecifyingExtension, TypeSpecifierAwareExtension
+class Assert_Function_Type_Specifying_Extension implements Function_Type_Specifying_Extension, Type_Specifier_Aware_Extension
 {
-    private TypeSpecifier $typeSpecifier;
-
-    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    private Type_Specifier $type_specifier;
+    public function set_type_specifier(Type_Specifier $type_specifier): void
     {
-        $this->typeSpecifier = $typeSpecifier;
+        $this->type_specifier = $type_specifier;
     }
-
-    public function isFunctionSupported(
-        FunctionReflection $functionReflection,
-        FuncCall $node,
-        TypeSpecifierContext $context
-    ): bool {
-        return AssertTypeSpecifyingExtensionHelper::isSupported(
-            $this->trimName($functionReflection->getName()),
-            $node->getArgs(),
-        );
-    }
-
-    public function specifyTypes(
-        FunctionReflection $functionReflection,
-        FuncCall $node,
-        Scope $scope,
-        TypeSpecifierContext $context
-    ): SpecifiedTypes {
-        return AssertTypeSpecifyingExtensionHelper::specifyTypes(
-            $this->typeSpecifier,
-            $scope,
-            $this->trimName($functionReflection->getName()),
-            $node->getArgs(),
-        );
-    }
-
-    private function trimName(string $functionName): string
+    public function is_function_supported(Function_Reflection $function_reflection, Func_Call $node, Type_Specifier_Context $context): bool
     {
-        $prefix = 'PHPUnit\\Framework\\';
-        if (strpos($functionName, $prefix) === 0) {
-            return substr($functionName, strlen($prefix));
+        return Assert_Type_Specifying_Extension_Helper::is_supported($this->trim_name($function_reflection->get_name()), $node->get_args());
+    }
+    public function specify_types(Function_Reflection $function_reflection, Func_Call $node, Scope $scope, Type_Specifier_Context $context): Specified_Types
+    {
+        return Assert_Type_Specifying_Extension_Helper::specify_types($this->type_specifier, $scope, $this->trim_name($function_reflection->get_name()), $node->get_args());
+    }
+    private function trim_name(string $function_name): string
+    {
+        $prefix = 'PHPUnit\Framework\\';
+        if (strpos($function_name, $prefix) === 0) {
+            return substr($function_name, strlen($prefix));
         }
-
-        return $functionName;
+        return $function_name;
     }
-
 }

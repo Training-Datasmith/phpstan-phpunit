@@ -1,93 +1,77 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PHPStan\Type\PHPUnit;
+declare (strict_types=1);
+namespace Php_Stan\Type\Php_Unit;
 
 use function count;
-
-use PhpParser\Node\Arg;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\StaticCall;
-use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\MethodReflection;
-use PHPStan\Type\DynamicMethodReturnTypeExtension;
-use PHPStan\Type\DynamicStaticMethodReturnTypeExtension;
-use PHPStan\Type\ObjectType;
-use PHPStan\Type\Type;
-use PHPStan\Type\TypeCombinator;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\MockObject\Stub;
-use PHPUnit\Framework\TestCase;
-
-class MockForIntersectionDynamicReturnTypeExtension implements DynamicMethodReturnTypeExtension, DynamicStaticMethodReturnTypeExtension
+use Php_Parser\Node\Arg;
+use Php_Parser\Node\Expr\Method_Call;
+use Php_Parser\Node\Expr\Static_Call;
+use Php_Stan\Analyser\Scope;
+use Php_Stan\Reflection\Method_Reflection;
+use Php_Stan\Type\Dynamic_Method_Return_Type_Extension;
+use Php_Stan\Type\Dynamic_Static_Method_Return_Type_Extension;
+use Php_Stan\Type\Object_Type;
+use Php_Stan\Type\Type;
+use Php_Stan\Type\Type_Combinator;
+use Php_Unit\Framework\Mock_Object\Mock_Object;
+use Php_Unit\Framework\Mock_Object\Stub;
+use Php_Unit\Framework\Test_Case;
+class Mock_For_Intersection_Dynamic_Return_Type_Extension implements Dynamic_Method_Return_Type_Extension, Dynamic_Static_Method_Return_Type_Extension
 {
-    public function getClass(): string
+    public function get_class(): string
     {
-        return TestCase::class;
+        return Test_Case::class;
     }
-
-    public function isMethodSupported(MethodReflection $methodReflection): bool
+    public function is_method_supported(Method_Reflection $method_reflection): bool
     {
-        return $methodReflection->getName() === 'createMockForIntersectionOfInterfaces';
+        return $method_reflection->get_name() === 'createMockForIntersectionOfInterfaces';
     }
-
-    public function isStaticMethodSupported(MethodReflection $methodReflection): bool
+    public function is_static_method_supported(Method_Reflection $method_reflection): bool
     {
-        return $methodReflection->getName() === 'createStubForIntersectionOfInterfaces';
+        return $method_reflection->get_name() === 'createStubForIntersectionOfInterfaces';
     }
-
-    public function getTypeFromStaticMethodCall(MethodReflection $methodReflection, StaticCall $methodCall, Scope $scope): ?Type
+    public function get_type_from_static_method_call(Method_Reflection $method_reflection, Static_Call $method_call, Scope $scope): ?Type
     {
-        return $this->getTypeFromCall($methodReflection, $methodCall->getArgs(), $scope);
+        return $this->get_type_from_call($method_reflection, $method_call->get_args(), $scope);
     }
-
-    public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): ?Type
+    public function get_type_from_method_call(Method_Reflection $method_reflection, Method_Call $method_call, Scope $scope): ?Type
     {
-        return $this->getTypeFromCall($methodReflection, $methodCall->getArgs(), $scope);
+        return $this->get_type_from_call($method_reflection, $method_call->get_args(), $scope);
     }
-
     /**
      * @param array<Arg> $args
      */
-    private function getTypeFromCall(MethodReflection $methodReflection, array $args, Scope $scope): ?Type
+    private function get_type_from_call(Method_Reflection $method_reflection, array $args, Scope $scope): ?Type
     {
         if (!isset($args[0])) {
             return null;
         }
-
-        $interfaces = $scope->getType($args[0]->value);
-        $constantArrays = $interfaces->getConstantArrays();
-        if (count($constantArrays) !== 1) {
+        $interfaces = $scope->get_type($args[0]->value);
+        $constant_arrays = $interfaces->get_constant_arrays();
+        if (count($constant_arrays) !== 1) {
             return null;
         }
-
-        $constantArray = $constantArrays[0];
-        if (count($constantArray->getOptionalKeys()) > 0) {
+        $constant_array = $constant_arrays[0];
+        if (count($constant_array->get_optional_keys()) > 0) {
             return null;
         }
-
         $result = [];
-        if ($methodReflection->getName() === 'createMockForIntersectionOfInterfaces') {
-            $result[] = new ObjectType(MockObject::class);
+        if ($method_reflection->get_name() === 'createMockForIntersectionOfInterfaces') {
+            $result[] = new Object_Type(Mock_Object::class);
         } else {
-            $result[] = new ObjectType(Stub::class);
+            $result[] = new Object_Type(Stub::class);
         }
-
-        foreach ($constantArray->getValueTypes() as $valueType) {
-            if (!$valueType->isClassString()->yes()) {
+        foreach ($constant_array->get_value_types() as $value_type) {
+            if (!$value_type->is_class_string()->yes()) {
                 return null;
             }
-
-            $values = $valueType->getConstantScalarValues();
+            $values = $value_type->get_constant_scalar_values();
             if (count($values) !== 1) {
                 return null;
             }
-
-            $result[] = new ObjectType((string) $values[0]);
+            $result[] = new Object_Type((string) $values[0]);
         }
-
-        return TypeCombinator::intersect(...$result);
+        return Type_Combinator::intersect(...$result);
     }
-
 }

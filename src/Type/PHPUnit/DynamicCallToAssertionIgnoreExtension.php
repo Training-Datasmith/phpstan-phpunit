@@ -1,52 +1,38 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PHPStan\Type\PHPUnit;
+declare (strict_types=1);
+namespace Php_Stan\Type\Php_Unit;
 
 use function is_string;
-
-use PhpParser\Node;
-use PHPStan\Analyser\Error;
-use PHPStan\Analyser\IgnoreErrorExtension;
-use PHPStan\Analyser\Scope;
-use PHPUnit\Framework\TestCase;
-
+use Php_Parser\Node;
+use Php_Stan\Analyser\Error;
+use Php_Stan\Analyser\Ignore_Error_Extension;
+use Php_Stan\Analyser\Scope;
+use Php_Unit\Framework\Test_Case;
 use function str_starts_with;
-
-final class DynamicCallToAssertionIgnoreExtension implements IgnoreErrorExtension
+final class Dynamic_Call_To_Assertion_Ignore_Extension implements Ignore_Error_Extension
 {
-    public function shouldIgnore(Error $error, Node $node, Scope $scope): bool
+    public function should_ignore(Error $error, Node $node, Scope $scope): bool
     {
-        if (!$node instanceof Node\Expr\MethodCall) {
+        if (!$node instanceof Node\Expr\Method_Call) {
             return false;
         }
-
         if (!$node->var instanceof Node\Expr\Variable) {
             return false;
         }
-
         if (!is_string($node->var->name) || $node->var->name !== 'this') {
             return false;
         }
-
-        if ($error->getIdentifier() !== 'staticMethod.dynamicCall') {
+        if ($error->get_identifier() !== 'staticMethod.dynamicCall') {
             return false;
         }
-
-        if (
-            !$node->name instanceof Node\Identifier
-            || !str_starts_with($node->name->name, 'assert')
-        ) {
+        if (!$node->name instanceof Node\Identifier || !str_starts_with($node->name->name, 'assert')) {
             return false;
         }
-
-        if (!$scope->isInClass()) {
+        if (!$scope->is_in_class()) {
             return false;
         }
-
-        $classReflection = $scope->getClassReflection();
-        return $classReflection->is(TestCase::class);
+        $class_reflection = $scope->get_class_reflection();
+        return $class_reflection->is(Test_Case::class);
     }
-
 }

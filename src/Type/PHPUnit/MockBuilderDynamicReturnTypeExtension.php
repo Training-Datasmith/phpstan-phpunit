@@ -1,41 +1,27 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PHPStan\Type\PHPUnit;
+declare (strict_types=1);
+namespace Php_Stan\Type\Php_Unit;
 
 use function in_array;
-
-use PhpParser\Node\Expr\MethodCall;
-use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\MethodReflection;
-use PHPStan\Type\DynamicMethodReturnTypeExtension;
-use PHPStan\Type\Type;
-use PHPUnit\Framework\MockObject\MockBuilder;
-
-class MockBuilderDynamicReturnTypeExtension implements DynamicMethodReturnTypeExtension
+use Php_Parser\Node\Expr\Method_Call;
+use Php_Stan\Analyser\Scope;
+use Php_Stan\Reflection\Method_Reflection;
+use Php_Stan\Type\Dynamic_Method_Return_Type_Extension;
+use Php_Stan\Type\Type;
+use Php_Unit\Framework\Mock_Object\Mock_Builder;
+class Mock_Builder_Dynamic_Return_Type_Extension implements Dynamic_Method_Return_Type_Extension
 {
-    public function getClass(): string
+    public function get_class(): string
     {
-        return MockBuilder::class;
+        return Mock_Builder::class;
     }
-
-    public function isMethodSupported(MethodReflection $methodReflection): bool
+    public function is_method_supported(Method_Reflection $method_reflection): bool
     {
-        return !in_array(
-            $methodReflection->getName(),
-            [
-                'getMock',
-                'getMockForAbstractClass',
-                'getMockForTrait',
-            ],
-            true,
-        );
+        return !in_array($method_reflection->get_name(), ['getMock', 'getMockForAbstractClass', 'getMockForTrait'], true);
     }
-
-    public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
+    public function get_type_from_method_call(Method_Reflection $method_reflection, Method_Call $method_call, Scope $scope): Type
     {
-        return $scope->getType($methodCall->var);
+        return $scope->get_type($method_call->var);
     }
-
 }

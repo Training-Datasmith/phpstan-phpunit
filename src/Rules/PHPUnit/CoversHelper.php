@@ -1,134 +1,90 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PHPStan\Rules\PHPUnit;
+declare (strict_types=1);
+namespace Php_Stan\Rules\Php_Unit;
 
 use function array_merge;
 use function explode;
-
-use PhpParser\Node;
-use PhpParser\Node\Name;
-use PHPStan\PhpDoc\ResolvedPhpDocBlock;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
-use PHPStan\Reflection\ReflectionProvider;
-use PHPStan\Rules\IdentifierRuleError;
-use PHPStan\Rules\RuleErrorBuilder;
-
+use Php_Parser\Node;
+use Php_Parser\Node\Name;
+use Php_Stan\Php_Doc\Resolved_Php_Doc_Block;
+use Php_Stan\Php_Doc_Parser\Ast\Php_Doc\Php_Doc_Tag_Node;
+use Php_Stan\Reflection\Reflection_Provider;
+use Php_Stan\Rules\Identifier_Rule_Error;
+use Php_Stan\Rules\Rule_Error_Builder;
 use function sprintf;
 use function strpos;
-
-class CoversHelper
+class Covers_Helper
 {
     /**
      * Reflection provider.
      *
      */
-    private ReflectionProvider $reflectionProvider;
-
-    public function __construct(ReflectionProvider $reflectionProvider)
+    private Reflection_Provider $reflection_provider;
+    public function __construct(Reflection_Provider $reflection_provider)
     {
-        $this->reflectionProvider = $reflectionProvider;
+        $this->reflection_provider = $reflection_provider;
     }
-
     /**
      * Gathers @covers and @coversDefaultClass annotations from phpdocs.
      *
      * @return array{PhpDocTagNode[], PhpDocTagNode[]}
      */
-    public function getCoverAnnotations(?ResolvedPhpDocBlock $phpDoc): array
+    public function get_cover_annotations(?Resolved_Php_Doc_Block $php_doc): array
     {
-        if ($phpDoc === null) {
+        if ($php_doc === null) {
             return [[], []];
         }
-
-        $phpDocNodes = $phpDoc->getPhpDocNodes();
-
+        $php_doc_nodes = $php_doc->get_php_doc_nodes();
         $covers = [];
-        $coversDefaultClasses = [];
-
-        foreach ($phpDocNodes as $docNode) {
-            $covers = array_merge(
-                $covers,
-                $docNode->getTagsByName('@covers'),
-            );
-
-            $coversDefaultClasses = array_merge(
-                $coversDefaultClasses,
-                $docNode->getTagsByName('@coversDefaultClass'),
-            );
+        $covers_default_classes = [];
+        foreach ($php_doc_nodes as $doc_node) {
+            $covers = array_merge($covers, $doc_node->get_tags_by_name('@covers'));
+            $covers_default_classes = array_merge($covers_default_classes, $doc_node->get_tags_by_name('@coversDefaultClass'));
         }
-
-        return [$covers, $coversDefaultClasses];
+        return [$covers, $covers_default_classes];
     }
-
     /**
      * @return list<IdentifierRuleError> errors
      */
-    public function processCovers(
-        Node $node,
-        PhpDocTagNode $phpDocTag,
-        ?PhpDocTagNode $coversDefaultClass
-    ): array {
+    public function process_covers(Node $node, Php_Doc_Tag_Node $php_doc_tag, ?Php_Doc_Tag_Node $covers_default_class): array
+    {
         $errors = [];
-        $covers = (string) $phpDocTag->value;
-
+        $covers = (string) $php_doc_tag->value;
         if ($covers === '') {
-            $errors[] = RuleErrorBuilder::message('@covers value does not specify anything.')
-                ->identifier('phpunit.covers')
-                ->build();
-
+            $errors[] = Rule_Error_Builder::message('@covers value does not specify anything.')->identifier('phpunit.covers')->build();
             return $errors;
         }
-
-        $isMethod = strpos($covers, '::') !== false;
-        $fullName = $covers;
-
-        if ($isMethod) {
-            [$className, $method] = explode('::', $covers);
+        $is_method = strpos($covers, '::') !== false;
+        $full_name = $covers;
+        if ($is_method) {
+            [$class_name, $method] = explode('::', $covers);
         } else {
-            $className = $covers;
+            $class_name = $covers;
         }
-
-        if ($className === '' && $node instanceof Node\Stmt\ClassMethod && $coversDefaultClass !== null) {
-            $className = (string) $coversDefaultClass->value;
-            $fullName = $className . $covers;
+        if ($class_name === '' && $node instanceof Node\Stmt\Class_Method && $covers_default_class !== null) {
+            $class_name = (string) $covers_default_class->value;
+            $full_name = $class_name . $covers;
         }
-
-        if ($this->reflectionProvider->hasClass($className)) {
-            $class = $this->reflectionProvider->getClass($className);
-
-            if ($class->isInterface()) {
-                $errors[] = RuleErrorBuilder::message(sprintf(
-                    '@covers value %s references an interface.',
-                    $fullName,
-                ))->identifier('phpunit.coversInterface')->build();
+        if ($this->reflection_provider->has_class($class_name)) {
+            $class = $this->reflection_provider->get_class($class_name);
+            if ($class->is_interface()) {
+                $errors[] = Rule_Error_Builder::message(sprintf('@covers value %s references an interface.', $full_name))->identifier('phpunit.coversInterface')->build();
             }
-
-            if (isset($method) && $method !== '' && !$class->hasMethod($method)) {
-                $errors[] = RuleErrorBuilder::message(sprintf(
-                    '@covers value %s references an invalid method.',
-                    $fullName,
-                ))->identifier('phpunit.coversMethod')->build();
+            if (isset($method) && $method !== '' && !$class->has_method($method)) {
+                $errors[] = Rule_Error_Builder::message(sprintf('@covers value %s references an invalid method.', $full_name))->identifier('phpunit.coversMethod')->build();
             }
-        } elseif (isset($method) && $this->reflectionProvider->hasFunction(new Name($method, []), null)) {
+        } elseif (isset($method) && $this->reflection_provider->has_function(new Name($method, []), null)) {
             return $errors;
-        } elseif (!isset($method) && $this->reflectionProvider->hasFunction(new Name($className, []), null)) {
+        } elseif (!isset($method) && $this->reflection_provider->has_function(new Name($class_name, []), null)) {
             return $errors;
         } else {
-            $error = RuleErrorBuilder::message(sprintf(
-                '@covers value %s references an invalid %s.',
-                $fullName,
-                $isMethod ? 'method' : 'class or function',
-            ))->identifier(sprintf('phpunit.covers%s', $isMethod ? 'Method' : ''));
-
-            if (strpos($className, '\\') === false) {
+            $error = Rule_Error_Builder::message(sprintf('@covers value %s references an invalid %s.', $full_name, $is_method ? 'method' : 'class or function'))->identifier(sprintf('phpunit.covers%s', $is_method ? 'Method' : ''));
+            if (strpos($class_name, '\\') === false) {
                 $error->tip('The @covers annotation requires a fully qualified name.');
             }
-
             $errors[] = $error->build();
         }
         return $errors;
     }
-
 }

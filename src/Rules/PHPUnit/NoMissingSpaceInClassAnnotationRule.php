@@ -1,49 +1,41 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
+namespace Php_Stan\Rules\Php_Unit;
 
-namespace PHPStan\Rules\PHPUnit;
-
-use PhpParser\Node;
-use PHPStan\Analyser\Scope;
-use PHPStan\Node\InClassNode;
-use PHPStan\Rules\Rule;
-use PHPUnit\Framework\TestCase;
-
+use Php_Parser\Node;
+use Php_Stan\Analyser\Scope;
+use Php_Stan\Node\In_Class_Node;
+use Php_Stan\Rules\Rule;
+use Php_Unit\Framework\Test_Case;
 /**
  * @implements Rule<InClassNode>
  */
-class NoMissingSpaceInClassAnnotationRule implements Rule
+class No_Missing_Space_In_Class_Annotation_Rule implements Rule
 {
     /**
      * Covers helper.
      *
      */
-    private AnnotationHelper $annotationHelper;
-
-    public function __construct(AnnotationHelper $annotationHelper)
+    private Annotation_Helper $annotation_helper;
+    public function __construct(Annotation_Helper $annotation_helper)
     {
-        $this->annotationHelper = $annotationHelper;
+        $this->annotation_helper = $annotation_helper;
     }
-
-    public function getNodeType(): string
+    public function get_node_type(): string
     {
-        return InClassNode::class;
+        return In_Class_Node::class;
     }
-
-    public function processNode(Node $node, Scope $scope): array
+    public function process_node(Node $node, Scope $scope): array
     {
-        $classReflection = $scope->getClassReflection();
-        if ($classReflection === null || $classReflection->is(TestCase::class) === false) {
+        $class_reflection = $scope->get_class_reflection();
+        if ($class_reflection === null || $class_reflection->is(Test_Case::class) === false) {
             return [];
         }
-
-        $docComment = $node->getDocComment();
-        if ($docComment === null) {
+        $doc_comment = $node->get_doc_comment();
+        if ($doc_comment === null) {
             return [];
         }
-
-        return $this->annotationHelper->processDocComment($docComment);
+        return $this->annotation_helper->process_doc_comment($doc_comment);
     }
-
 }

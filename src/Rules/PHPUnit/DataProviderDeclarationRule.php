@@ -1,79 +1,53 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PHPStan\Rules\PHPUnit;
+declare (strict_types=1);
+namespace Php_Stan\Rules\Php_Unit;
 
 use function array_merge;
-
-use PhpParser\Node;
-use PHPStan\Analyser\Scope;
-use PHPStan\Rules\Rule;
-use PHPUnit\Framework\TestCase;
-
+use Php_Parser\Node;
+use Php_Stan\Analyser\Scope;
+use Php_Stan\Rules\Rule;
+use Php_Unit\Framework\Test_Case;
 /**
  * @implements Rule<Node\Stmt\ClassMethod>
  */
-class DataProviderDeclarationRule implements Rule
+class Data_Provider_Declaration_Rule implements Rule
 {
     /**
      * Data provider helper.
      *
      */
-    private DataProviderHelper $dataProviderHelper;
-
+    private Data_Provider_Helper $data_provider_helper;
     /**
      * When set to true, it reports data provider method with incorrect name case.
      *
      */
-    private bool $checkFunctionNameCase;
-
+    private bool $check_function_name_case;
     /**
      * When phpstan-deprecation-rules is installed, it reports deprecated usages.
      *
      */
-    private bool $deprecationRulesInstalled;
-
-    public function __construct(
-        DataProviderHelper $dataProviderHelper,
-        bool $checkFunctionNameCase,
-        bool $deprecationRulesInstalled
-    ) {
-        $this->dataProviderHelper = $dataProviderHelper;
-        $this->checkFunctionNameCase = $checkFunctionNameCase;
-        $this->deprecationRulesInstalled = $deprecationRulesInstalled;
-    }
-
-    public function getNodeType(): string
+    private bool $deprecation_rules_installed;
+    public function __construct(Data_Provider_Helper $data_provider_helper, bool $check_function_name_case, bool $deprecation_rules_installed)
     {
-        return Node\Stmt\ClassMethod::class;
+        $this->data_provider_helper = $data_provider_helper;
+        $this->check_function_name_case = $check_function_name_case;
+        $this->deprecation_rules_installed = $deprecation_rules_installed;
     }
-
-    public function processNode(Node $node, Scope $scope): array
+    public function get_node_type(): string
     {
-        $classReflection = $scope->getClassReflection();
-
-        if ($classReflection === null || !$classReflection->is(TestCase::class)) {
+        return Node\Stmt\Class_Method::class;
+    }
+    public function process_node(Node $node, Scope $scope): array
+    {
+        $class_reflection = $scope->get_class_reflection();
+        if ($class_reflection === null || !$class_reflection->is(Test_Case::class)) {
             return [];
         }
-
         $errors = [];
-
-        foreach ($this->dataProviderHelper->getDataProviderMethods($scope, $node, $classReflection) as $dataProviderValue => [$dataProviderClassReflection, $dataProviderMethodName, $lineNumber]) {
-            $errors = array_merge(
-                $errors,
-                $this->dataProviderHelper->processDataProvider(
-                    $dataProviderValue,
-                    $dataProviderClassReflection,
-                    $dataProviderMethodName,
-                    $lineNumber,
-                    $this->checkFunctionNameCase,
-                    $this->deprecationRulesInstalled,
-                ),
-            );
+        foreach ($this->data_provider_helper->get_data_provider_methods($scope, $node, $class_reflection) as $data_provider_value => [$data_provider_class_reflection, $data_provider_method_name, $line_number]) {
+            $errors = array_merge($errors, $this->data_provider_helper->process_data_provider($data_provider_value, $data_provider_class_reflection, $data_provider_method_name, $line_number, $this->check_function_name_case, $this->deprecation_rules_installed));
         }
-
         return $errors;
     }
-
 }

@@ -1,111 +1,85 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PHPStan\Rules\PHPUnit;
+declare (strict_types=1);
+namespace Php_Stan\Rules\Php_Unit;
 
 use function in_array;
-
-use PhpParser\Node;
-use PHPStan\Analyser\Scope;
-use PHPStan\Node\InClassMethodNode;
-use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
-use PHPUnit\Framework\TestCase;
-
+use Php_Parser\Node;
+use Php_Stan\Analyser\Scope;
+use Php_Stan\Node\In_Class_Method_Node;
+use Php_Stan\Rules\Rule;
+use Php_Stan\Rules\Rule_Error_Builder;
+use Php_Unit\Framework\Test_Case;
 use function sprintf;
 use function strtolower;
-
 /**
  * @implements Rule<InClassMethodNode>
  */
-class ShouldCallParentMethodsRule implements Rule
+class Should_Call_Parent_Methods_Rule implements Rule
 {
-    public function getNodeType(): string
+    public function get_node_type(): string
     {
-        return InClassMethodNode::class;
+        return In_Class_Method_Node::class;
     }
-
-    public function processNode(Node $node, Scope $scope): array
+    public function process_node(Node $node, Scope $scope): array
     {
-        $methodName = $node->getOriginalNode()->name->name;
-        if (!in_array(strtolower($methodName), ['setup', 'teardown'], true)) {
+        $method_name = $node->get_original_node()->name->name;
+        if (!in_array(strtolower($method_name), ['setup', 'teardown'], true)) {
             return [];
         }
-        if ($scope->getClassReflection() === null) {
+        if ($scope->get_class_reflection() === null) {
             return [];
         }
-
-        if (!$scope->getClassReflection()->is(TestCase::class)) {
+        if (!$scope->get_class_reflection()->is(Test_Case::class)) {
             return [];
         }
-
-        $parentClass = $scope->getClassReflection()->getParentClass();
-
-        if ($parentClass === null) {
+        $parent_class = $scope->get_class_reflection()->get_parent_class();
+        if ($parent_class === null) {
             return [];
         }
-        if (!$parentClass->hasNativeMethod($methodName)) {
+        if (!$parent_class->has_native_method($method_name)) {
             return [];
         }
-
-        $parentMethod = $parentClass->getNativeMethod($methodName);
-        if ($parentMethod->getDeclaringClass()->getName() === TestCase::class) {
+        $parent_method = $parent_class->get_native_method($method_name);
+        if ($parent_method->get_declaring_class()->get_name() === Test_Case::class) {
             return [];
         }
-
-        $hasParentCall = $this->hasParentClassCall($node->getOriginalNode()->getStmts(), strtolower($methodName));
-
-        if (!$hasParentCall) {
-            return [
-                RuleErrorBuilder::message(
-                    sprintf('Missing call to parent::%s() method.', $methodName),
-                )->identifier('phpunit.callParent')->build(),
-            ];
+        $has_parent_call = $this->has_parent_class_call($node->get_original_node()->get_stmts(), strtolower($method_name));
+        if (!$has_parent_call) {
+            return [Rule_Error_Builder::message(sprintf('Missing call to parent::%s() method.', $method_name))->identifier('phpunit.callParent')->build()];
         }
-
         return [];
     }
-
     /**
      * @param Node\Stmt[]|null $stmts
      *
      */
-    private function hasParentClassCall(?array $stmts, string $methodName): bool
+    private function has_parent_class_call(?array $stmts, string $method_name): bool
     {
         if ($stmts === null) {
             return false;
         }
-
         foreach ($stmts as $stmt) {
-            if (! $stmt instanceof Node\Stmt\Expression) {
+            if (!$stmt instanceof Node\Stmt\Expression) {
                 continue;
             }
-
-            if (! $stmt->expr instanceof Node\Expr\StaticCall) {
+            if (!$stmt->expr instanceof Node\Expr\Static_Call) {
                 continue;
             }
-
-            if (! $stmt->expr->class instanceof Node\Name) {
+            if (!$stmt->expr->class instanceof Node\Name) {
                 continue;
             }
-
             $class = (string) $stmt->expr->class;
-
             if (strtolower($class) !== 'parent') {
                 continue;
             }
-
-            if (! $stmt->expr->name instanceof Node\Identifier) {
+            if (!$stmt->expr->name instanceof Node\Identifier) {
                 continue;
             }
-
-            if ($stmt->expr->name->toLowerString() === $methodName) {
+            if ($stmt->expr->name->to_lower_string() === $method_name) {
                 return true;
             }
         }
-
         return false;
     }
-
 }

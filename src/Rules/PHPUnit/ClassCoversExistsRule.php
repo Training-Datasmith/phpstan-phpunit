@@ -1,93 +1,65 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PHPStan\Rules\PHPUnit;
+declare (strict_types=1);
+namespace Php_Stan\Rules\Php_Unit;
 
 use function array_merge;
 use function array_shift;
 use function count;
-
-use PhpParser\Node;
-use PHPStan\Analyser\Scope;
-use PHPStan\Node\InClassNode;
-use PHPStan\Reflection\ReflectionProvider;
-use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
-use PHPUnit\Framework\TestCase;
-
+use Php_Parser\Node;
+use Php_Stan\Analyser\Scope;
+use Php_Stan\Node\In_Class_Node;
+use Php_Stan\Reflection\Reflection_Provider;
+use Php_Stan\Rules\Rule;
+use Php_Stan\Rules\Rule_Error_Builder;
+use Php_Unit\Framework\Test_Case;
 use function sprintf;
-
 /**
  * @implements Rule<InClassNode>
  */
-class ClassCoversExistsRule implements Rule
+class Class_Covers_Exists_Rule implements Rule
 {
     /**
      * Covers helper.
      *
      */
-    private CoversHelper $coversHelper;
-
+    private Covers_Helper $covers_helper;
     /**
      * Reflection provider.
      *
      */
-    private ReflectionProvider $reflectionProvider;
-
-    public function __construct(
-        CoversHelper $coversHelper,
-        ReflectionProvider $reflectionProvider
-    ) {
-        $this->reflectionProvider = $reflectionProvider;
-        $this->coversHelper = $coversHelper;
-    }
-
-    public function getNodeType(): string
+    private Reflection_Provider $reflection_provider;
+    public function __construct(Covers_Helper $covers_helper, Reflection_Provider $reflection_provider)
     {
-        return InClassNode::class;
+        $this->reflection_provider = $reflection_provider;
+        $this->covers_helper = $covers_helper;
     }
-
-    public function processNode(Node $node, Scope $scope): array
+    public function get_node_type(): string
     {
-        $classReflection = $node->getClassReflection();
-
-        if (!$classReflection->is(TestCase::class)) {
+        return In_Class_Node::class;
+    }
+    public function process_node(Node $node, Scope $scope): array
+    {
+        $class_reflection = $node->get_class_reflection();
+        if (!$class_reflection->is(Test_Case::class)) {
             return [];
         }
-
-        $classPhpDoc = $classReflection->getResolvedPhpDoc();
-        [$classCovers, $classCoversDefaultClasses] = $this->coversHelper->getCoverAnnotations($classPhpDoc);
-
-        if (count($classCoversDefaultClasses) >= 2) {
-            return [
-                RuleErrorBuilder::message(sprintf(
-                    '@coversDefaultClass is defined multiple times.',
-                ))->identifier('phpunit.coversDuplicate')->build(),
-            ];
+        $class_php_doc = $class_reflection->get_resolved_php_doc();
+        [$class_covers, $class_covers_default_classes] = $this->covers_helper->get_cover_annotations($class_php_doc);
+        if (count($class_covers_default_classes) >= 2) {
+            return [Rule_Error_Builder::message(sprintf('@coversDefaultClass is defined multiple times.'))->identifier('phpunit.coversDuplicate')->build()];
         }
-
         $errors = [];
-        $coversDefaultClass = array_shift($classCoversDefaultClasses);
-
-        if ($coversDefaultClass !== null) {
-            $className = (string) $coversDefaultClass->value;
-            if (!$this->reflectionProvider->hasClass($className)) {
-                $errors[] = RuleErrorBuilder::message(sprintf(
-                    '@coversDefaultClass references an invalid class %s.',
-                    $className,
-                ))->identifier('phpunit.coversClass')->build();
+        $covers_default_class = array_shift($class_covers_default_classes);
+        if ($covers_default_class !== null) {
+            $class_name = (string) $covers_default_class->value;
+            if (!$this->reflection_provider->has_class($class_name)) {
+                $errors[] = Rule_Error_Builder::message(sprintf('@coversDefaultClass references an invalid class %s.', $class_name))->identifier('phpunit.coversClass')->build();
             }
         }
-
-        foreach ($classCovers as $covers) {
-            $errors = array_merge(
-                $errors,
-                $this->coversHelper->processCovers($node, $covers, null),
-            );
+        foreach ($class_covers as $covers) {
+            $errors = array_merge($errors, $this->covers_helper->process_covers($node, $covers, null));
         }
-
         return $errors;
     }
-
 }

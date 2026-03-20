@@ -1,115 +1,74 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PHPStan\Rules\PHPUnit;
+declare (strict_types=1);
+namespace Php_Stan\Rules\Php_Unit;
 
 use function array_map;
 use function array_merge;
 use function array_shift;
 use function count;
 use function in_array;
-
-use PhpParser\Node;
-use PHPStan\Analyser\Scope;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
-use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
-use PHPStan\Type\FileTypeMapper;
-use PHPUnit\Framework\TestCase;
-
+use Php_Parser\Node;
+use Php_Stan\Analyser\Scope;
+use Php_Stan\Php_Doc_Parser\Ast\Php_Doc\Php_Doc_Tag_Node;
+use Php_Stan\Rules\Rule;
+use Php_Stan\Rules\Rule_Error_Builder;
+use Php_Stan\Type\File_Type_Mapper;
+use Php_Unit\Framework\Test_Case;
 use function sprintf;
-
 /**
  * @implements Rule<Node\Stmt\ClassMethod>
  */
-class ClassMethodCoversExistsRule implements Rule
+class Class_Method_Covers_Exists_Rule implements Rule
 {
     /**
      * Covers helper.
      *
      */
-    private CoversHelper $coversHelper;
-
+    private Covers_Helper $covers_helper;
     /**
      * The file type mapper.
      *
      */
-    private FileTypeMapper $fileTypeMapper;
-
-    public function __construct(
-        CoversHelper $coversHelper,
-        FileTypeMapper $fileTypeMapper
-    ) {
-        $this->coversHelper = $coversHelper;
-        $this->fileTypeMapper = $fileTypeMapper;
-    }
-
-    public function getNodeType(): string
+    private File_Type_Mapper $file_type_mapper;
+    public function __construct(Covers_Helper $covers_helper, File_Type_Mapper $file_type_mapper)
     {
-        return Node\Stmt\ClassMethod::class;
+        $this->covers_helper = $covers_helper;
+        $this->file_type_mapper = $file_type_mapper;
     }
-
-    public function processNode(Node $node, Scope $scope): array
+    public function get_node_type(): string
     {
-        $classReflection = $scope->getClassReflection();
-
-        if ($classReflection === null) {
+        return Node\Stmt\Class_Method::class;
+    }
+    public function process_node(Node $node, Scope $scope): array
+    {
+        $class_reflection = $scope->get_class_reflection();
+        if ($class_reflection === null) {
             return [];
         }
-
-        if (!$classReflection->is(TestCase::class)) {
+        if (!$class_reflection->is(Test_Case::class)) {
             return [];
         }
-
-        $classPhpDoc = $classReflection->getResolvedPhpDoc();
-        [$classCovers, $classCoversDefaultClasses] = $this->coversHelper->getCoverAnnotations($classPhpDoc);
-
-        $classCoversStrings = array_map(static fn (PhpDocTagNode $covers): string => (string) $covers->value, $classCovers);
-
-        $docComment = $node->getDocComment();
-        if ($docComment === null) {
+        $class_php_doc = $class_reflection->get_resolved_php_doc();
+        [$class_covers, $class_covers_default_classes] = $this->covers_helper->get_cover_annotations($class_php_doc);
+        $class_covers_strings = array_map(static fn(Php_Doc_Tag_Node $covers): string => (string) $covers->value, $class_covers);
+        $doc_comment = $node->get_doc_comment();
+        if ($doc_comment === null) {
             return [];
         }
-
-        $coversDefaultClass = count($classCoversDefaultClasses) === 1
-            ? array_shift($classCoversDefaultClasses)
-            : null;
-
-        $methodPhpDoc = $this->fileTypeMapper->getResolvedPhpDoc(
-            $scope->getFile(),
-            $classReflection->getName(),
-            $scope->isInTrait() ? $scope->getTraitReflection()->getName() : null,
-            $node->name->toString(),
-            $docComment->getText(),
-        );
-
-        [$methodCovers, $methodCoversDefaultClasses] = $this->coversHelper->getCoverAnnotations($methodPhpDoc);
-
+        $covers_default_class = count($class_covers_default_classes) === 1 ? array_shift($class_covers_default_classes) : null;
+        $method_php_doc = $this->file_type_mapper->get_resolved_php_doc($scope->get_file(), $class_reflection->get_name(), $scope->is_in_trait() ? $scope->get_trait_reflection()->get_name() : null, $node->name->to_string(), $doc_comment->get_text());
+        [$method_covers, $method_covers_default_classes] = $this->covers_helper->get_cover_annotations($method_php_doc);
         $errors = [];
-
-        if (count($methodCoversDefaultClasses) > 0) {
-            $errors[] = RuleErrorBuilder::message(sprintf(
-                '@coversDefaultClass defined on class method %s.',
-                $node->name,
-            ))->identifier('phpunit.covers')->build();
+        if (count($method_covers_default_classes) > 0) {
+            $errors[] = Rule_Error_Builder::message(sprintf('@coversDefaultClass defined on class method %s.', $node->name))->identifier('phpunit.covers')->build();
         }
-
-        foreach ($methodCovers as $covers) {
-            if (in_array((string) $covers->value, $classCoversStrings, true)) {
-                $errors[] = RuleErrorBuilder::message(sprintf(
-                    'Class already @covers %s so the method @covers is redundant.',
-                    $covers->value,
-                ))->identifier('phpunit.coversDuplicate')->build();
+        foreach ($method_covers as $covers) {
+            if (in_array((string) $covers->value, $class_covers_strings, true)) {
+                $errors[] = Rule_Error_Builder::message(sprintf('Class already @covers %s so the method @covers is redundant.', $covers->value))->identifier('phpunit.coversDuplicate')->build();
             }
-
-            $errors = array_merge(
-                $errors,
-                $this->coversHelper->processCovers($node, $covers, $coversDefaultClass),
-            );
+            $errors = array_merge($errors, $this->covers_helper->process_covers($node, $covers, $covers_default_class));
         }
-
         return $errors;
     }
-
 }
